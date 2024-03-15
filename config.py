@@ -1,4 +1,6 @@
-API_ID = # There App ID
-API_HASH = # There API Hash
-BOT_TOKEN = # There Bot Token
-ADMIN_BOT_TOKEN = # There Admin Bot Token
+import sys
+
+API_ID = sys.argv[1]
+API_HASH = sys.argv[2]
+BOT_TOKEN = sys.argv[3]
+ADMIN_BOT_TOKEN = sys.argv[4]

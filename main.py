@@ -27,7 +27,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def forward_all_messages_to_specialist(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.user_data.get('in_consultation') and update.effective_chat.id != keyboard_handlers.SPECIALIST_CHAT_ID:
         await context.bot.forward_message(chat_id=keyboard_handlers.SPECIALIST_CHAT_ID, from_chat_id=update.effective_chat.id, message_id=update.message.message_id)
-        await update.message.reply_text(f"Ваше сообщение было отправлено специалисту. ID пользователя: {update.effective_chat.id}")
+        await update.message.reply_text(f"Ваше сообщение было отправлено специалисту. ID пользователя: {update.effective_chat.id}. Для того, чтобы специалист мог связаться с Вами - откройте возможность писать людям не в Ваших контактах")
     else:
         await update.message.reply_text(f"Вы не вошли в режим консультации или Вы являетесь администратором", reply_markup=keyboard)
 

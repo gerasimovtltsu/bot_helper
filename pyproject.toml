@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "svobot"
+version = "0.1.0"
+description = ""
+authors = ["gerasimovtltsu <theavg@yandex.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+logging = "^0.4.9.6"
+python-telegram-bot = "^21.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
