@@ -141,3 +141,6 @@ Scripts/
 
 # Include
 Include/
+
+# config file
+config.py
