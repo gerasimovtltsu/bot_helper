@@ -1,3 +1,3 @@
 Libs:
-- [x] python-telegram-bot
+- [x] aiogram
 - [x] logging
