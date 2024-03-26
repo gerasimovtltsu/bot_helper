@@ -21,7 +21,7 @@ async def forward_to_specialist(message: types.Message, state: FSMContext):
 async def forward_to_user(message: types.Message, state: FSMContext):
     if message.reply_to_message:
         await message.bot.forward_message(chat_id=message.reply_to_message.forward_from.id, from_chat_id=message.chat.id, message_id=message.message_id)
-        await message.answer("Ответ от консультанта отправлен вам.")
+        await message.answer("Ответ отправлен пользователю. Спасибо за оперативный ответ")
 
 async def end_consultation(message: types.Message, state: FSMContext):
     if await state.get_state() == UserState.in_consultation.state:
