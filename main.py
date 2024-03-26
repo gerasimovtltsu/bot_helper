@@ -28,7 +28,7 @@ admin_dp = Dispatcher()
 @dp.message(Command('start'))
 async def start(message: types.Message):
     await message.answer(
-        "Добро пожаловать! Выберите действие на появивщейся клавиатуре. Для повторного вызова меню отправьте команду /start или /menu",
+        "Добро пожаловать! Выберите действие на появивщейся клавиатуре. Для повторного вызова меню отправьте команду /start",
         reply_markup=keyboard
     )
 
