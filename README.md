@@ -15,5 +15,7 @@ poetry run python main.py {API_ID} {API_HASH} {BOT_TOKEN}
 # Скриншоты работы
 
 ![Отправка запроса пользователем](image.png)
+
 ![Отправка ответа админом](image-1.png)
+
 ![Как ответ пришел пользователю](image-2.png)
