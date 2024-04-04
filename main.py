@@ -69,6 +69,11 @@ async def handle_admin_response(message: types.Message):
     user_chat_id = admin_to_user_map[message.reply_to_message.message_id]
     await admin_bot.send_message(chat_id=user_chat_id, text=message.text)
 
+@admin_dp.message(lambda message: message.reply_to_message and message.reply_to_message.message_id in keyboard_handlers.specialist_to_user_map)
+async def handle_specialist_response(message: types.Message):
+    user_chat_id, original_message_id = keyboard_handlers.specialist_to_user_map[message.reply_to_message.message_id]
+    await bot.send_message(chat_id=user_chat_id, text=message.text, reply_to_message_id=original_message_id)
+
 @dp.message()
 async def handle_message(message: types.Message):
     await forward_to_admin(message)

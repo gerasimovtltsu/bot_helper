@@ -8,6 +8,7 @@ active_consultations = {}
 class UserState(StatesGroup):
     in_consultation = State()
 
+
 async def handle_consultation(message: types.Message, state: FSMContext):
     await state.set_state(UserState.in_consultation)
     active_consultations[SPECIALIST_CHAT_ID] = message.chat.id
