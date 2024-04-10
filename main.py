@@ -2,15 +2,17 @@ import asyncio
 import json
 import logging
 
-from aiogram import Bot, Dispatcher, Router, types
+from aiogram import Bot, Dispatcher, F, Router, types
 from aiogram.filters.command import Command
 from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
-# from aiogram.utils import executor
+
 from config import BOT_TOKEN, ADMIN_BOT_TOKEN
 import keyboard_handlers
+
+from ordering_depression_test import router as depression_test_router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -102,6 +104,9 @@ async def handle_specialist_response(message: types.Message):
 @dp.message()
 async def handle_message(message: types.Message):
     await message.reply("Неизвестная команда")
+
+
+dp.include_router(depression_test_router)
 
 async def main():
     await dp.start_polling(bot)
