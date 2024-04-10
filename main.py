@@ -2,10 +2,12 @@ import asyncio
 import json
 import logging
 
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, Router, types
 from aiogram.filters.command import Command
-from aiogram.types import ReplyKeyboardMarkup
+from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.storage.memory import MemoryStorage
 # from aiogram.utils import executor
 from config import BOT_TOKEN, ADMIN_BOT_TOKEN
 import keyboard_handlers
@@ -21,22 +23,22 @@ keyboard = ReplyKeyboardMarkup(**kbd_json)
 
 bot = Bot(token=BOT_TOKEN)
 admin_bot = Bot(token=ADMIN_BOT_TOKEN)
-dp = Dispatcher()
+dp = Dispatcher(storage=MemoryStorage())
 
 admin_dp = Dispatcher()
 
 @dp.message(Command('start'))
 async def start(message: types.Message):
     await message.answer(
-        """
-        🌿 Добро пожаловать в чат-бота психологической помощи!
-        🌟 Здесь Вы можете получить поддержку и консультацию, когда Вам это необходимо.
-        ⏰ Наш чат-бот доступен для Вас круглосуточно, в любое удобное время.
-        📞 Для консультации отправьте запрос, выбрав в меню пункт "Консультация со специалистом". Наши специалисты обязательно с Вами свяжутся и ответят на Ваши вопросы
-        ✨ Пожалуйста, напишите, какая помощь Вам необходима, и мы с удовольствием поможем в Вашем путешествии к психологическому благополучию.
-        🌺 Не стесняйтесь обращаться за поддержкой, Вы заслуживаете заботу и внимание!
-        """,
-        reply_markup=keyboard
+    """
+    🌿 Добро пожаловать в чат-бота психологической помощи!
+    🌟 Здесь Вы можете получить поддержку и консультацию, когда Вам это необходимо.
+    ⏰ Наш чат-бот доступен для Вас круглосуточно, в любое удобное время.
+    📞 Для консультации отправьте запрос, выбрав в меню пункт "Консультация со специалистом". Наши специалисты обязательно с Вами свяжутся и ответят на Ваши вопросы
+    ✨ Пожалуйста, напишите, какая помощь Вам необходима, и мы с удовольствием поможем в Вашем путешествии к психологическому благополучию.
+    🌺 Не стесняйтесь обращаться за поддержкой, Вы заслуживаете заботу и внимание!
+    """,
+    reply_markup=keyboard
     )
 
 @dp.message(lambda message: message.text == 'Консультация со специалистом')
@@ -53,19 +55,35 @@ async def forward_to_user(message: types.Message, state: FSMContext):
 
 @dp.message()
 async def forward_all_messages_to_specialist(message: types.Message, state: FSMContext):
-    await keyboard_handlers.forward_to_specialist(message, state)
+    if message.text != "Завершить консультацию":  # Проверяем текст сообщения, а не объект сообщения
+        await keyboard_handlers.forward_to_specialist(message, state)
+    else:
+        await end_consultation(message, state)  # Передаем объект сообщения и объект состояния
 
 @dp.message(Command('end_consultation'))
 async def end_consultation(message: types.Message, state: FSMContext):
     await keyboard_handlers.end_consultation(message, state)
 
-@dp.message(Command('open_requests'))
-async def list_open_requests(message: types.Message, state: FSMContext):
-    await keyboard_handlers.list_open_requests(message, state)
+@dp.message(lambda message: message.text == 'Завершить консультацию')
+async def end_consultation_text(message: types.Message, state: FSMContext):
+    await keyboard_handlers.end_consultation(message, state)
 
-@dp.message(Command('answer'))
-async def answer_request(message: types.Message, state: FSMContext):
-    await keyboard_handlers.answer_request(message, state)
+# @dp.message(Command('start_depression_test'))
+# async def start_depression_test(message: types.Message):
+#     await depression_test.start_test(message, dp.current_state(user=message.from_user.id))
+
+@dp.message(Command('depression_test:*'))
+async def handle_depression_test_answer(message: types.Message):
+    current_state = await dp.current_state(user=message.from_user.id).get_state()
+    question_index = int(current_state.split('_')[-1])  # Получение индекса текущего вопроса
+    user_answers[message.from_user.id].append(int(message.text))  # Сохранение ответа пользователя
+
+    if question_index < len(questions):
+        await dp.current_state(user=message.from_user.id).set_state(f'depression_test:question_{question_index + 1}')
+        await message.answer(questions[question_index])
+    else:
+        await dp.current_state(user=message.from_user.id).finish()
+        await calculate_result(message)
 
 async def forward_to_admin(message: types.Message):
     forwarded_message = await admin_bot.forward_message(chat_id=ADMIN_CHAT_ID, from_chat_id=message.chat.id, message_id=message.message_id)
@@ -83,8 +101,7 @@ async def handle_specialist_response(message: types.Message):
 
 @dp.message()
 async def handle_message(message: types.Message):
-    await forward_to_admin(message)
-
+    await message.reply("Неизвестная команда")
 
 async def main():
     await dp.start_polling(bot)
