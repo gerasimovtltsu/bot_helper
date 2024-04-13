@@ -14,7 +14,7 @@ async def start_test(message: types.Message, state: FSMContext):
         test_data = json.load(file)
     await state.update_data(questions=test_data['questions'], answers=[], index=0)
     await state.set_state(TestStates.waiting_for_answer)
-    await message.answer("Начинаем тест. Отвечайте на вопросы по шкале от 'Нет' до 'Да'.")
+    await message.answer(f"{test_data["test_title"]} запущен")
     await send_question(message, state)
 
 async def send_question(message: types.Message, state: FSMContext):
