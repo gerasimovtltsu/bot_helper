@@ -13,6 +13,9 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from config import BOT_TOKEN, ADMIN_BOT_TOKEN
 import keyboard_handlers
 
+import psycho_tests.resilience_test
+
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
@@ -30,14 +33,6 @@ admin_bot = Bot(token=ADMIN_BOT_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
 admin_dp = Dispatcher(storage=MemoryStorage())
-
-# Определение состояний для теста на депрессию
-class DepressionTest(StatesGroup):
-    question = State()
-
-# Загрузка вопросов теста
-with open('depression_test.json', 'r', encoding='utf-8') as file:
-    dt = json.load(file)
 
 @dp.message(Command('start'))
 async def start(message: types.Message):
@@ -65,6 +60,11 @@ async def handle_consultation(message: types.Message, state: FSMContext):
 async def forward_to_user(message: types.Message, state: FSMContext):
     await keyboard_handlers.forward_to_user(message, state)
 
+@dp.message(lambda message: message.text == "Тест жизнестойкости")
+async def handle_test(message: types.Message, state: FSMContext):
+    await state.clear()
+    await psycho_tests.resilience_test.start_test(message, state)
+
 @dp.message()
 async def forward_all_messages_to_specialist(message: types.Message, state: FSMContext):
     if message.text != "Завершить консультацию":  # Проверяем текст сообщения, а не объект сообщения
@@ -79,19 +79,6 @@ async def end_consultation(message: types.Message, state: FSMContext):
 @dp.message(lambda message: message.text == 'Завершить консультацию')
 async def end_consultation_text(message: types.Message, state: FSMContext):
     await keyboard_handlers.end_consultation(message, state)
-
-@dp.message(Command('dt:*'))
-async def handle_dt_answer(message: types.Message):
-    current_state = await dp.current_state(user=message.from_user.id).get_state()
-    question_index = int(current_state.split('_')[-1])  # Получение индекса текущего вопроса
-    user_answers[message.from_user.id].append(int(message.text))  # Сохранение ответа пользователя
-
-    if question_index < len(questions):
-        await dp.current_state(user=message.from_user.id).set_state(f'dt:question_{question_index + 1}')
-        await message.answer(questions[question_index])
-    else:
-        await dp.current_state(user=message.from_user.id).finish()
-        await calculate_result(message)
 
 async def forward_to_admin(message: types.Message):
     forwarded_message = await admin_bot.forward_message(chat_id=ADMIN_CHAT_ID, from_chat_id=message.chat.id, message_id=message.message_id)
@@ -113,4 +100,5 @@ async def main():
 
 if __name__ == '__main__':
     import asyncio
+    # psycho_tests.resilience_test.register_handlers_test(dp)
     asyncio.run(main())

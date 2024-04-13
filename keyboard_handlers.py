@@ -33,8 +33,8 @@ async def end_consultation(message: types.Message, state: FSMContext):
             await message.answer('Консультация завершена! Спасибо за обращение!')
             await state.clear()
 
-def register_handlers(dp: Dispatcher):
-    dp.register_message_handler(handle_consultation, commands=['start_consultation'], state=UserState.in_consultation)
-    dp.register_message_handler(forward_to_specialist, state=UserState.in_consultation)
-    dp.register_message_handler(forward_to_user, state=UserState.in_consultation)
-    dp.register_message_handler(end_consultation, commands=['end_consultation'], state='')
+# def register_handlers(dp: Dispatcher):
+#     dp.register_message_handler(handle_consultation, commands=['start_consultation'], state=UserState.in_consultation)
+#     dp.register_message_handler(forward_to_specialist, state=UserState.in_consultation)
+#     dp.register_message_handler(forward_to_user, state=UserState.in_consultation)
+#     dp.register_message_handler(end_consultation, commands=['end_consultation'], state='')
