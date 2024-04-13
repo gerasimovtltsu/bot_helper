@@ -62,7 +62,7 @@ async def handle_consultation(message: types.Message, state: FSMContext):
 async def forward_to_user(message: types.Message, state: FSMContext):
     await keyboard_handlers.forward_to_user(message, state)
 
-@dp.message(lambda message: message.text == "Тест жизнестойкости")
+@dp.message(lambda message: message.text == "Тест жизнестойкости (С. Мадди, адаптация Д.А. Леонтьева)")
 async def handle_test(message: types.Message, state: FSMContext):
     await state.clear()
     await psycho_tests.resilience_test.start_test(message, state)
