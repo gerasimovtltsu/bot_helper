@@ -84,7 +84,7 @@ async def finish_test(message: types.Message, state: FSMContext):
     # Вывод результатов
     result_text = "Спасибо за прохождение теста! Ваши результаты:\n"
     for scale, score in scale_scores.items():
-        result_text += f"{scale}: {common_scores} баллов\n"
+        result_text += f"{scale}: {scale_scores[scale]} баллов\n"
         
 
     await message.answer(result_text)
