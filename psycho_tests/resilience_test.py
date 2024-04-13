@@ -17,17 +17,18 @@ async def start_test(message: types.Message, state: FSMContext):
     await message.answer(f"{test_data["test_title"]} запущен")
     await send_question(message, state)
 
+
 async def send_question(message: types.Message, state: FSMContext):
-    kbd_builder = InlineKeyboardBuilder()
     user_data = await state.get_data()
     index = user_data['index']
     questions = user_data['questions']
+    kbd_builder = InlineKeyboardBuilder()
     buttons = ["Нет", "Скорее нет", "Скорее да", "Да"]
     for elem in buttons:
         kbd_builder.button(text=f"{elem}", callback_data=elem)
 
     if index < len(questions):
-        question_text = questions['text']
+        question_text = questions[index]['text']
         if index == 0:
             await message.answer(question_text, reply_markup=kbd_builder.as_markup())
         else:
@@ -78,14 +79,16 @@ async def finish_test(message: types.Message, state: FSMContext):
 
         # Добавляем баллы к соответствующей шкале
         scale_scores[scale] += points
+        
     
     # Вывод результатов
     result_text = "Спасибо за прохождение теста! Ваши результаты:\n"
     for scale, score in scale_scores.items():
-        result_text += f"{scale}: {score} баллов\n"
+        result_text += f"{scale}: {common_scores} баллов\n"
+        
 
     await message.answer(result_text)
-    await state.finish()
+    await state.clear()
 
 # def register_handlers_test(dp: Dispatcher):
 #     dp.register_message_handler(start_test, commands=['start_test'], state='*')

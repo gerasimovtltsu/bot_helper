@@ -30,8 +30,10 @@ keyboard = ReplyKeyboardMarkup(**kbd_json)
 
 bot = Bot(token=BOT_TOKEN)
 admin_bot = Bot(token=ADMIN_BOT_TOKEN)
-dp = Dispatcher(storage=MemoryStorage())
+router = Router()
 
+dp = Dispatcher(storage=MemoryStorage())
+dp.include_router(router)
 admin_dp = Dispatcher(storage=MemoryStorage())
 
 @dp.message(Command('start'))
@@ -93,6 +95,25 @@ async def handle_admin_response(message: types.Message):
 async def handle_specialist_response(message: types.Message):
     user_chat_id, original_message_id = keyboard_handlers.specialist_to_user_map[message.reply_to_message.message_id]
     await bot.send_message(chat_id=user_chat_id, text=message.text, reply_to_message_id=original_message_id)
+
+@dp.callback_query()
+async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    if current_state != "TestStates:waiting_for_answer":
+        return # Пропустить обработку, если состояние не совпадает
+
+    answer = callback_query.data
+    await callback_query.answer()  # Отправляем пустой ответ на callback, чтобы убрать "часики" у пользователя
+    
+    if answer not in ['Нет', 'Скорее нет', 'Скорее да', 'Да']:
+        await callback_query.message.answer("Пожалуйста, выберите ответ из предложенных вариантов.")
+        return
+
+    user_data = await state.get_data()
+    user_data['answers'].append(answer)
+    user_data['index'] += 1
+    await state.set_data(user_data)
+    await psycho_tests.resilience_test.send_question(callback_query.message, state)
 
 async def main():
     await dp.start_polling(bot)
