@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-with open('psycho_tests\psm25.json', 'r', encoding='utf8') as psm_file:
+with open('psycho_tests/psm25.json', 'r', encoding='utf8') as psm_file:
         psm_data = json.load(psm_file)
 
 class PSMStates(StatesGroup):
