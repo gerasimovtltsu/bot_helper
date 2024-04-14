@@ -16,6 +16,7 @@ async def start_sos(message: types.Message, state: FSMContext):
     await state.update_data(questions=sos_data['questions'], answers=[], index=0)
     await state.set_state(SOSStates.sos_answer)
     await message.answer(f"{sos_data['test_title']} запущен")
+    await message.answer("Для выхода из теста отправьте команду <code>/start</code>", parse_mode='HTML')
     await send_sos_question(message, state)
 
 async def send_sos_question(message: types.Message, state: FSMContext):

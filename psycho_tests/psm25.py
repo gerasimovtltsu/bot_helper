@@ -16,6 +16,7 @@ async def start_psm(message: types.Message, state: FSMContext):
     await state.update_data(questions=psm_data['questions'], answers=[], index=0)
     await state.set_state(PSMStates.psm_answer)
     await message.answer(f"{psm_data['test_title']} запущен\nПредлагается ряд утверждений, характеризующих психическое состояние.\nОцените, пожалуйста, Ваше состояние за последнюю неделю с помощью 8-балльной шкалы. Для этого на бланке опросника рядом с каждым утверждением обведите (поставьте) число от 1 до 8, которое наиболее точно определяет ваши переживания.\nЗдесь нет неправильных или ошибочных ответов.\nОтвечайте как можно искреннее.\nДля выполнения теста потребуется приблизительно пять минут.\nЦифры от 1 до 8 означают частоту переживаний.\n❗️При прохождении теста вопрос будет автоматически заменяться на следующий после вашего ответа, без отправки нового сообщения.")
+    await message.answer("Для выхода из теста отправьте команду <code>/start</code>", parse_mode='HTML')
     await send_psm_question(message, state)
 
 async def send_psm_question(message: types.Message, state: FSMContext):

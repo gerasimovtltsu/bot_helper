@@ -15,6 +15,7 @@ async def start_test(message: types.Message, state: FSMContext):
     await state.update_data(questions=test_data['questions'], answers=[], index=0)
     await state.set_state(TestStates.waiting_for_answer)
     await message.answer(f"{test_data['test_title']} запущен\nОтветьте, пожалуйста, на несколько вопросов о себе. Выбирайте тот ответ, который наилучшим образом отражает Ваше мнение. Здесь нет правильных или неправильных ответов, так как важно только Ваше мнение.\nПросьба работать в темпе, подолгу не задумываясь над ответами.\n❗️При прохождении теста вопрос будет автоматически заменяться на следующий после вашего ответа, без отправки нового сообщения.")
+    await message.answer("Для выхода из теста отправьте команду <code>/start</code>", parse_mode='HTML')
     await send_question(message, state)
 
 async def send_question(message: types.Message, state: FSMContext):
