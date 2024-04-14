@@ -13,7 +13,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from config import BOT_TOKEN, ADMIN_BOT_TOKEN
 import keyboard_handlers
 
-import psycho_tests.resilience_test, psycho_tests.psm25
+import psycho_tests.resilience_test, psycho_tests.psm25, psycho_tests.sos_test
 
 
 logging.basicConfig(
@@ -72,6 +72,11 @@ async def handle_psm_test(message: types.Message, state: FSMContext):
     await state.clear()
     await psycho_tests.psm25.start_psm(message, state)
 
+@dp.message(lambda message: message.text == "📝 Симптоматический опросник самочувствия (СОС)")
+async def handle_sos_test(message: types.Message, state: FSMContext):
+    await state.clear()
+    await psycho_tests.sos_test.start_sos(message, state)
+
 @dp.message()
 async def forward_all_messages_to_specialist(message: types.Message, state: FSMContext):
     if message.text != "🏁 Завершить консультацию":  # Проверяем текст сообщения, а не объект сообщения
@@ -120,6 +125,8 @@ async def process_callback(callback_query: types.CallbackQuery, state: FSMContex
         await psycho_tests.resilience_test.send_question(callback_query.message, state)
     elif current_state == "PSMStates:psm_answer":
         await handle_psm_test(callback_query, state)
+    elif current_state == "SOSStates:sos_answer":
+        await handle_sos_test(callback_query, state)
     else:
         # Возврат, если состояние не поддерживается или не определено
         await callback_query.answer()
@@ -135,7 +142,14 @@ async def handle_psm_test(callback_query: types.CallbackQuery, state: FSMContext
     await callback_query.answer()  # Отправляем пустой ответ на callback
     await psycho_tests.psm25.send_psm_question(callback_query.message, state)
 
-
+async def handle_sos_test(callback_query: types.CallbackQuery, state: FSMContext):
+    answer = callback_query.data
+    user_data = await state.get_data()
+    user_data['answers'].append(answer)
+    user_data['index'] += 1
+    await state.set_data(user_data)
+    await callback_query.answer()  # Отправляем пустой ответ на callback
+    await psycho_tests.sos_test.send_sos_question(callback_query.message, state)
 
 async def main():
     await dp.start_polling(bot)
