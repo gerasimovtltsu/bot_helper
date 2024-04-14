@@ -63,9 +63,18 @@ async def finish_test(message: types.Message, state: FSMContext):
     points = psm_data['scoring']
     if total_score >= points['high_stress']['min_score']:
         result_text += points['high_stress']['description']
+        await message.answer_photo(
+            types.FSInputFile(path="pictures/high_stress.jpg")
+        )
     elif points['medium_stress']['max_score'] >= total_score >= points['medium_stress']['min_score']:
         result_text += points['medium_stress']['description']
+        await message.answer_photo(
+            types.FSInputFile(path="pictures/medium_stress.jpg")
+        )
     else:
         result_text += points['low_stress']['description']
+        await message.answer_photo(
+            types.FSInputFile(path="pictures/low_stress.jpg")
+        )
     await message.answer(result_text)
     await state.clear()
