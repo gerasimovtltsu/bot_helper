@@ -17,8 +17,10 @@ poetry run python main.py {API_ID} {API_HASH} {BOT_TOKEN}
 
 # Скриншоты работы
 
-![Отправка запроса пользователем](image-3.png)
+![Скриншот запуска бота](screenshots/image-1.png)
 
-![Отправка ответа админом](image-1.png)
+![Меню бота](screenshots/image-2.png)
 
-![Как ответ пришел пользователю](image-2.png)
+![Режим консультации](screenshots/image-3.png)
+
+![Пример теста](screenshots/image-4.png)
