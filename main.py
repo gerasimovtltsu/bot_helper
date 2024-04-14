@@ -69,7 +69,7 @@ async def handle_test(message: types.Message, state: FSMContext):
 
 @dp.message()
 async def forward_all_messages_to_specialist(message: types.Message, state: FSMContext):
-    if message.text != "Завершить консультацию":  # Проверяем текст сообщения, а не объект сообщения
+    if message.text != "🏁 Завершить консультацию":  # Проверяем текст сообщения, а не объект сообщения
         await keyboard_handlers.forward_to_specialist(message, state)
     else:
         await end_consultation(message, state)  # Передаем объект сообщения и объект состояния
@@ -78,7 +78,7 @@ async def forward_all_messages_to_specialist(message: types.Message, state: FSMC
 async def end_consultation(message: types.Message, state: FSMContext):
     await keyboard_handlers.end_consultation(message, state)
 
-@dp.message(lambda message: message.text == 'Завершить консультацию')
+@dp.message(lambda message: message.text == '🏁 Завершить консультацию')
 async def end_consultation_text(message: types.Message, state: FSMContext):
     await keyboard_handlers.end_consultation(message, state)
 

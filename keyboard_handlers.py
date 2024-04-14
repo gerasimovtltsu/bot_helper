@@ -1,6 +1,9 @@
 from aiogram import types, Dispatcher
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+
+from main import keyboard as main_keyboard
 
 SPECIALIST_CHAT_ID = 288957466
 active_consultations = {}
@@ -13,8 +16,21 @@ class UserState(StatesGroup):
 async def handle_consultation(message: types.Message, state: FSMContext):
     await state.set_state(UserState.in_consultation)
     active_consultations[SPECIALIST_CHAT_ID] = message.chat.id
-    await message.reply('Вы вошли в режим консультации\. Напишите Ваш вопрос, и специалист Вам ответит\. Чтобы выйти из режима консультации отправьте сообщение `Завершить консультацию`', parse_mode='MarkdownV2')
-    if message.text == 'Завершить консультацию':
+    consult_kb = [
+        [KeyboardButton(text="🏁 Завершить консультацию")]
+    ]
+    finish_consult_kbd = ReplyKeyboardMarkup(
+        keyboard=consult_kb,
+        one_time_keyboard=True,
+        resize_keyboard=True,
+        input_field_placeholder="Для завершения консультации нажмите на кнопку `🏁 Завершить консультацию`")
+    await message.reply(
+        text="Вы вошли в режим консультации\n" + \
+        "Напишите Ваш вопрос, и специалист Вам ответит \n" + \
+        "Чтобы выйти из режима консультации нажмите на кнопку `🏁 Завершить консультацию`",
+        reply_markup=finish_consult_kbd, parse_mode='MarkdownV2'
+    )
+    if message.text == '🏁 Завершить консультацию':
             await end_consultation(message, state.get_state())
 
 async def forward_to_specialist(message: types.Message, state: FSMContext):
@@ -29,9 +45,9 @@ async def forward_to_user(message: types.Message, state: FSMContext):
 
 async def end_consultation(message: types.Message, state: FSMContext):
     if await state.get_state() == UserState.in_consultation.state:
-        if message.text == 'Завершить консультацию':
-            await message.answer('Консультация завершена! Спасибо за обращение!')
+        if message.text == '🏁 Завершить консультацию':
             await state.clear()
+            await message.answer('Консультация завершена! Спасибо за обращение!', reply_markup=main_keyboard)
 
 # def register_handlers(dp: Dispatcher):
 #     dp.register_message_handler(handle_consultation, commands=['start_consultation'], state=UserState.in_consultation)
