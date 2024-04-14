@@ -13,7 +13,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from config import BOT_TOKEN, ADMIN_BOT_TOKEN
 import keyboard_handlers
 
-import psycho_tests.resilience_test
+import psycho_tests.resilience_test, psycho_tests.psm25
 
 
 logging.basicConfig(
@@ -67,6 +67,11 @@ async def handle_test(message: types.Message, state: FSMContext):
     await state.clear()
     await psycho_tests.resilience_test.start_test(message, state)
 
+@dp.message(lambda message: message.text == "📝 Методика выявления психологического стресса РSМ 25 (перевод и адаптация выполнены Н. Е. Водопьяновой)")
+async def handle_psm_test(message: types.Message, state: FSMContext):
+    await state.clear()
+    await psycho_tests.psm25.start_psm(message, state)
+
 @dp.message()
 async def forward_all_messages_to_specialist(message: types.Message, state: FSMContext):
     if message.text != "🏁 Завершить консультацию":  # Проверяем текст сообщения, а не объект сообщения
@@ -99,21 +104,38 @@ async def handle_specialist_response(message: types.Message):
 @dp.callback_query()
 async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
-    if current_state != "TestStates:waiting_for_answer":
-        return # Пропустить обработку, если состояние не совпадает
+    # Обработка ответов для теста устойчивости
+    if current_state == "TestStates:waiting_for_answer":
+        answer = callback_query.data
+        await callback_query.answer()  # Отправляем пустой ответ на callback, чтобы убрать "часики" у пользователя
+        
+        if answer not in ['Нет', 'Скорее нет', 'Скорее да', 'Да']:
+            await callback_query.message.answer("Пожалуйста, выберите ответ из предложенных вариантов.")
+            return
 
-    answer = callback_query.data
-    await callback_query.answer()  # Отправляем пустой ответ на callback, чтобы убрать "часики" у пользователя
-    
-    if answer not in ['Нет', 'Скорее нет', 'Скорее да', 'Да']:
-        await callback_query.message.answer("Пожалуйста, выберите ответ из предложенных вариантов.")
+        user_data = await state.get_data()
+        user_data['answers'].append(answer)
+        user_data['index'] += 1
+        await state.set_data(user_data)
+        await psycho_tests.resilience_test.send_question(callback_query.message, state)
+    elif current_state == "PSMStates:psm_answer":
+        await handle_psm_test(callback_query, state)
+    else:
+        # Возврат, если состояние не поддерживается или не определено
+        await callback_query.answer()
         return
 
+
+async def handle_psm_test(callback_query: types.CallbackQuery, state: FSMContext):
+    answer = callback_query.data
     user_data = await state.get_data()
-    user_data['answers'].append(answer)
+    user_data['answers'].append(int(answer))
     user_data['index'] += 1
     await state.set_data(user_data)
-    await psycho_tests.resilience_test.send_question(callback_query.message, state)
+    await callback_query.answer()  # Отправляем пустой ответ на callback
+    await psycho_tests.psm25.send_psm_question(callback_query.message, state)
+
+
 
 async def main():
     await dp.start_polling(bot)
