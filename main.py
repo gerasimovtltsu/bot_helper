@@ -53,7 +53,7 @@ async def start(message: types.Message):
         parse_mode=ParseMode.HTML
     )
 
-@dp.message(lambda message: message.text == 'Консультация со специалистом')
+@dp.message(lambda message: message.text == '🙋 Консультация со специалистом')
 async def handle_consultation(message: types.Message, state: FSMContext):
     await state.clear()  # Явный сброс состояния
     await keyboard_handlers.handle_consultation(message, state)
@@ -62,7 +62,7 @@ async def handle_consultation(message: types.Message, state: FSMContext):
 async def forward_to_user(message: types.Message, state: FSMContext):
     await keyboard_handlers.forward_to_user(message, state)
 
-@dp.message(lambda message: message.text == "Тест жизнестойкости (С. Мадди, адаптация Д.А. Леонтьева)")
+@dp.message(lambda message: message.text == "📝 Тест жизнестойкости (С. Мадди, адаптация Д.А. Леонтьева)")
 async def handle_test(message: types.Message, state: FSMContext):
     await state.clear()
     await psycho_tests.resilience_test.start_test(message, state)
