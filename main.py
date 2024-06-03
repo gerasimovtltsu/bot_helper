@@ -1,5 +1,6 @@
 import json
 import logging
+import sys
 
 from aiogram import Bot, Dispatcher, F, Router, types
 from aiogram.enums import ParseMode
@@ -21,6 +22,7 @@ import psycho_tests.resilience_test, psycho_tests.psm25, psycho_tests.sos_test
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+    stream=sys.stdout
 )
 
 admin_to_user_map = {} # словарь для хранения соответствия между сообщениями в чате админа и идентификаторами чатов пользователей
