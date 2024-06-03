@@ -34,7 +34,7 @@ session = AiohttpSession(
     api=TelegramAPIServer.from_base('https://tgrasp.co')
 )
 
-bot = Bot(token=BOT_TOKEN)
+bot = Bot(token=BOT_TOKEN, session=session)
 admin_bot = Bot(token=ADMIN_BOT_TOKEN)
 router = Router()
 
