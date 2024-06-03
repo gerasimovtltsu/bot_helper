@@ -9,6 +9,8 @@ from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeybo
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.telegram import TelegramAPIServer
 
 from config import BOT_TOKEN, ADMIN_BOT_TOKEN
 import keyboard_handlers
@@ -27,6 +29,10 @@ with open("keyboard.json", "r", encoding='utf8') as kbd_layout:
     kbd_json = json.load(kbd_layout)
 
 keyboard = ReplyKeyboardMarkup(**kbd_json)
+
+session = AiohttpSession(
+    api=TelegramAPIServer.from_base('https://tgrasp.co')
+)
 
 bot = Bot(token=BOT_TOKEN)
 admin_bot = Bot(token=ADMIN_BOT_TOKEN)
